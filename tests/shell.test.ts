@@ -143,6 +143,8 @@ describe('展開・リダイレクト・パイプ', () => {
   it('> は先に空にする。>> は足す', () => {
     expect(out('echo hi > a.txt\necho yo >> a.txt\ncat a.txt')).toBe('hi\nyo\n');
     expect(out('sort memo.txt > memo.txt; cat memo.txt')).toBe('');
+    expect(sh('sort memo.txt > memo.txt').notes.map((n) => n.msg).join()).toMatch(/空にされています/);
+    expect(sh('sort memo.txt > sorted.txt').notes).toEqual([]);
     expect(err('cat memo.txt >> memo.txt')).toBe('cat: memo.txt: input file is output file\n');
   });
   it('< と 2> と 2>&1', () => {

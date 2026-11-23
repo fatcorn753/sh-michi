@@ -274,6 +274,7 @@ export class Shell {
     const fail = (msg: string, code = 1) => { write(errDest, msg + '\n', true); stage.code = code; return { code, piped: isLast ? null : '' }; };
 
     // リダイレクトは、コマンドを動かす前に左から順に開く(sort f > f で f が空になるのはこのため)
+    const emptied: unknown[] = [];
     for (const r of c.redirs) {
       if (r.op === '2>&1') { errDest = outDest; continue; }
       const t = this.expand(r.target!);
@@ -295,6 +296,7 @@ export class Shell {
           throw e;
         }
       }
+      if (d.k === 'file' && !r.op.endsWith('>>')) emptied.push(d.node);
       if (r.op === '>' || r.op === '>>') outDest = d;
       else if (r.op === '&>') { outDest = d; errDest = d; } else errDest = d;
     }
@@ -306,6 +308,16 @@ export class Shell {
       return { code: 0, piped: isLast ? null : '' };
     }
     const name = argv[0];
+    // 読むはずのファイルを > で先に空にしてしまう誤りは、何のエラーも出ないので気づきにくい
+    for (const arg of argv.slice(1)) {
+      if (arg.startsWith('-')) continue;
+      let n: unknown;
+      try { n = this.lookup(arg); } catch { continue; }
+      if (emptied.includes(n)) {
+        this.note(`「${arg}」は、コマンドが読む前にリダイレクト「>」で空にされています。結果は別の名前のファイルに書いてから mv で置き換えてください。`);
+        break;
+      }
+    }
     const fn = COMMANDS[name];
     if (!fn) {
       this.noteUnknown(name);

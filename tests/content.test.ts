@@ -46,7 +46,9 @@ describe('例題が動く', () => {
       const r = run(ex.code, { fs: ex.fs });
       expect(r.error, JSON.stringify(r.error)).toBeUndefined();
       expect(r.screen.length).toBeGreaterThan(0);
-      expect(r.ok, r.stderr).toBe(true);
+      // 「エラーの例」と題した例だけは、わざと失敗するコマンドを含む
+      if (!ex.title.includes('エラー')) expect(r.ok, r.stderr).toBe(true);
+      else expect(r.stderr, ex.title).not.toBe('');
     });
   }
   it('自由に打つ画面の初めのファイルが作れる', () => {
@@ -73,7 +75,9 @@ describe('問題が成り立つ', () => {
           case 'parsons': case 'fill': case 'write': {
             const ref = referenceCode(p);
             const r = run(ref, { fs: p.fs, cwd: p.cwd });
-            expect(r.ok, `${p.id} 参照解が失敗: ${r.stderr}`).toBe(true);
+            expect(r.error, p.id).toBeUndefined();
+            // エラーの行き先を扱う問題(2>)の参照解だけは、わざと失敗するコマンドを含む
+            if (!ref.includes('2>')) expect(r.ok, `${p.id} 参照解が失敗: ${r.stderr}`).toBe(true);
             const g = runTests(ref, ref, p);
             expect(g.ok, p.id).toBe(true);
             // 何も打たない・書き始めのまま・穴を空けたままでは合格しない

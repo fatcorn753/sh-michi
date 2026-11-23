@@ -1,6 +1,7 @@
-// 本編の単元 1〜3: 場所(pwd・ls・cd)、ファイル操作(mkdir・cp・mv・rm)、中身を見る(cat・head・tail・wc)
+// 本編の単元 1〜3: 場所(pwd・ls・cd)、ファイル操作(mkdir・cp・mv・rm)、中身を見る(cat・head・tail・wc)。4〜7 は main2.ts
 import type { Course, Unit } from './types';
 import { home } from './util';
+import { FIND, PERM, PIPE, SEARCH } from './main2';
 
 /** 段落を空行でつなぐ。箇条書きは 1 つの文字列の中で改行してまとめる */
 const L = (...s: string[]) => s.join('\n\n');
@@ -596,6 +597,6 @@ export const VIEW: Unit = {
 export const MAIN: Course = {
   id: 'main',
   title: '本編',
-  summary: 'いる場所の確かめ方から、ファイルの操作、中身の見方までを順に学ぶ',
-  units: [WHERE, FILES, VIEW],
+  summary: 'いる場所の確かめ方から、ファイルの操作、パイプ、検索と集計、権限、find までを順に学ぶ',
+  units: [WHERE, FILES, VIEW, PIPE, SEARCH, PERM, FIND],
 };
