@@ -38,7 +38,7 @@ export type Problem = ProblemBase & (
 );
 
 export type Step =
-  | { kind: 'read'; title: string; body: string; /** 1 行ずつ動かして見せる例題 */ example?: string; fs?: FsSpec }
+  | { kind: 'read'; title: string; body: string; /** 1 行ずつ動かして見せる例題 */ example?: string; fs?: FsSpec; /** 例を始める場所。省略するとホーム */ cwd?: string }
   | { kind: 'problem'; problem: Problem };
 
 export interface Lesson { id: string; title: string; steps: Step[] }

@@ -63,7 +63,7 @@ function LessonPlayer({ courseId, unitId, lesson, next }: { courseId: string; un
   const step = lesson.steps[i];
   useEffect(() => { setSolved(step.kind === 'read' || !!store.get().done[keyOf(i)]); }, [i]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const exampleRun = useMemo(() => (step.kind === 'read' && step.example ? run(step.example, { fs: step.fs, trace: true }) : null), [step]);
+  const exampleRun = useMemo(() => (step.kind === 'read' && step.example ? run(step.example, { fs: step.fs, cwd: step.cwd, trace: true }) : null), [step]);
   const goNext = () => {
     store.markDone(keyOf(i));
     if (i + 1 < lesson.steps.length) setI(i + 1);

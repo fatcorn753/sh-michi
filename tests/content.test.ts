@@ -7,11 +7,11 @@ import { run } from '../src/shell/shell';
 import { instantiate, referenceCode, runTests } from '../src/learn/grade';
 
 const problems: Problem[] = [];
-const reads: { title: string; code: string; fs?: Problem['fs'] }[] = [];
+const reads: { title: string; code: string; fs?: Problem['fs']; cwd?: string }[] = [];
 for (const c of COURSES) for (const u of c.units) {
   for (const l of u.lessons) for (const s of l.steps) {
     if (s.kind === 'problem') problems.push(s.problem);
-    else if (s.example) reads.push({ title: `${u.id}/${s.title}`, code: s.example, fs: s.fs });
+    else if (s.example) reads.push({ title: `${u.id}/${s.title}`, code: s.example, fs: s.fs, cwd: s.cwd });
   }
   problems.push(...u.check);
 }
@@ -43,7 +43,7 @@ describe('教材の形', () => {
 describe('例題が動く', () => {
   for (const ex of reads) {
     it(ex.title, () => {
-      const r = run(ex.code, { fs: ex.fs });
+      const r = run(ex.code, { fs: ex.fs, cwd: ex.cwd });
       expect(r.error, JSON.stringify(r.error)).toBeUndefined();
       expect(r.screen.length).toBeGreaterThan(0);
       // 「エラーの例」と題した例だけは、わざと失敗するコマンドを含む
