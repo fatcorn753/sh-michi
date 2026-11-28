@@ -25,6 +25,9 @@ const errorLineField = StateField.define<DecorationSet>({
   provide: (f) => EditorView.decorations.from(f),
 });
 
+/** タッチ端末の画面キーボードで打ちにくい記号。CSS で (pointer: coarse) のときだけ見せる */
+const SYMBOLS = ['|', '>', '<', '&', '$', '-', '/', '.', '~', '*', '"', "'", ';', '=', '(', ')', '{', '}', '[', ']', '#', '\\'];
+
 interface Props {
   value: string;
   onChange: (v: string) => void;
@@ -78,7 +81,26 @@ export function CodeEditor({ value, onChange, label, errorLine, onRun }: Props) 
     view.current?.dispatch({ effects: setErrorLine.of(errorLine ?? null) });
   }, [errorLine]);
 
-  return <div className="editor" ref={host} />;
+  const insert = (text: string) => {
+    const v = view.current;
+    if (!v) return;
+    v.dispatch({ ...v.state.replaceSelection(text), scrollIntoView: true });
+    v.focus();
+  };
+  // 押してもエディタからフォーカスを奪わない(画面キーボードが閉じないようにする)
+  const keep = (e: React.PointerEvent | React.MouseEvent) => e.preventDefault();
+
+  return (
+    <div className="stack">
+      <div className="sym-keys" role="toolbar" aria-label="記号の入力">
+        <button type="button" className="sym-key" aria-label="字下げ" onPointerDown={keep} onMouseDown={keep} onClick={() => { const v = view.current; if (v) insert(v.state.facet(indentUnit)); }}>Tab</button>
+        {SYMBOLS.map((s) => (
+          <button key={s} type="button" className="sym-key" onPointerDown={keep} onMouseDown={keep} onClick={() => insert(s)}>{s}</button>
+        ))}
+      </div>
+      <div className="editor" ref={host} />
+    </div>
+  );
 }
 
 /** 読むだけのコード表示。行番号付きで、指定した行に印を付ける */

@@ -57,7 +57,11 @@ export function Stepper({ code, result, predictFirst = false }: Props) {
   const pipeStages = revealed && s.stages.length > 1 ? s.stages : null;
 
   return (
-    <div className="stack" onKeyDown={onKey}>
+    <div className="stack step-root" onKeyDown={onKey}>
+      <label className="td-check">
+        <span>予測してから見る</span>
+        <input className="td-switch" type="checkbox" role="switch" checked={predict} onChange={(e) => { setPredict(e.target.checked); setRevealed(true); }} />
+      </label>
       <div className="step-controls" role="group" aria-label="1 行ずつ実行">
         <button className="td-btn" data-icon-only type="button" aria-label="最初へ" onClick={() => go(0)} disabled={i === 0}><ChevronFirst className="icon" strokeWidth={1.75} aria-hidden /></button>
         <button className="td-btn" data-icon-only type="button" aria-label="1 つ戻る(←)" onClick={() => go(i - 1)} disabled={i === 0}><ChevronLeft className="icon" strokeWidth={1.75} aria-hidden /></button>
@@ -67,10 +71,6 @@ export function Stepper({ code, result, predictFirst = false }: Props) {
         <button className="td-btn" data-icon-only type="button" aria-label="最後へ" onClick={() => go(last)} disabled={i === last}><ChevronLast className="icon" strokeWidth={1.75} aria-hidden /></button>
         <input type="range" min={0} max={last} value={i} onChange={(e) => { setRevealed(true); setI(+e.target.value); }} aria-label="何行目まで動かすかを選ぶ" />
         <span className="step-count" aria-live="polite">{i} / {last} 行</span>
-        <label className="td-check">
-          <span>予測してから見る</span>
-          <input className="td-switch" type="checkbox" role="switch" checked={predict} onChange={(e) => { setPredict(e.target.checked); setRevealed(true); }} />
-        </label>
       </div>
       {predict && !revealed && <p className="small muted" role="status">→ の行を動かすと、画面とファイルがどう変わるか予想してから「答えを見る」を押してください。</p>}
       <div className="stepper">

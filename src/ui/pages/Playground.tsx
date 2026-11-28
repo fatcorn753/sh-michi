@@ -7,6 +7,9 @@ import { PLAY_FS } from '../../content/playground';
 import { FsView } from '../FsView';
 import { Notes, TermView } from '../RunPanel';
 
+/** タッチ端末の画面キーボードで打ちにくい記号。CSS で (pointer: coarse) のときだけ見せる */
+const TERM_SYMBOLS = ['|', '>', '<', '&', '$', '-', '/', '.', '~', '*', '"', "'", ';', '='];
+
 const HIST_KEY = 'sh-michi:history';
 
 function fresh(): Shell {
@@ -89,6 +92,20 @@ export function Playground() {
     if (e.key === 'l' && e.ctrlKey) { e.preventDefault(); s.term.length = 0; render((n) => n + 1); }
   };
 
+  // 画面キーボードには Tab と矢印がなく、記号も打ちにくい。指で押せる列から同じ処理を呼ぶ
+  const softKey = (key: string) => {
+    onKey({ key, ctrlKey: false, preventDefault() {} } as React.KeyboardEvent<HTMLInputElement>);
+    inputRef.current?.focus();
+  };
+  const typeSym = (t: string) => {
+    const el = inputRef.current;
+    const a = el?.selectionStart ?? input.length;
+    const b = el?.selectionEnd ?? input.length;
+    setInput(input.slice(0, a) + t + input.slice(b));
+    requestAnimationFrame(() => { el?.focus(); el?.setSelectionRange(a + t.length, a + t.length); });
+  };
+  const keep = (e: React.PointerEvent | React.MouseEvent) => e.preventDefault();
+
   const reset = () => { sh.current = fresh(); setPrev(undefined); setNotes([]); setInput(''); render((n) => n + 1); inputRef.current?.focus(); };
 
   return (
@@ -106,6 +123,14 @@ export function Playground() {
                 autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} enterKeyHint="send" autoFocus
               />
             </div>
+          </div>
+          <div className="sym-keys" role="toolbar" aria-label="記号と補完の入力">
+            <button type="button" className="sym-key" aria-label="名前を補完する" onPointerDown={keep} onMouseDown={keep} onClick={() => softKey('Tab')}>Tab</button>
+            <button type="button" className="sym-key" aria-label="前のコマンド" onPointerDown={keep} onMouseDown={keep} onClick={() => softKey('ArrowUp')}>↑</button>
+            <button type="button" className="sym-key" aria-label="次のコマンド" onPointerDown={keep} onMouseDown={keep} onClick={() => softKey('ArrowDown')}>↓</button>
+            {TERM_SYMBOLS.map((t) => (
+              <button key={t} type="button" className="sym-key" onPointerDown={keep} onMouseDown={keep} onClick={() => typeSym(t)}>{t}</button>
+            ))}
           </div>
           <Notes notes={notes} multiLine={false} />
           <div className="row row-end">

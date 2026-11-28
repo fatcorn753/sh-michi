@@ -195,4 +195,31 @@
 .icon-sm { width: 16px; height: 16px; flex: none; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
-.back-link { display: inline-flex; align-items: center; gap: var(--space-1); }
+.back-link { display: inline-flex; align-items: center; gap: var(--space-1); min-height: 44px; }
+
+/* 幅の狭い画面では、1 行ずつ実行の操作をタブバーの上に留め、図を見ながら親指で進められるようにする */
+@media (max-width: 719.98px) {
+  .step-root > .step-controls {
+    order: 1; position: sticky; bottom: calc(56px + env(safe-area-inset-bottom)); z-index: 5;
+    flex-wrap: nowrap; padding: var(--space-2) 0;
+    background: var(--bg-canvas); border-top: 1px solid var(--border-subtle);
+  }
+  /* 1 行に収めるため、スライダーは隠す(最初へ・最後へのボタンで代わりになる) */
+  .step-root > .step-controls input[type='range'] { display: none; }
+  .step-root > .step-controls .step-count { min-width: 0; margin-left: auto; }
+}
+
+/* 画面キーボードで打ちにくい記号の列。指で操作する端末だけに出す */
+.sym-keys { display: none; }
+@media (pointer: coarse) {
+  .sym-keys {
+    display: flex; gap: var(--space-1); overflow-x: auto; position: sticky; top: 0; z-index: 2;
+    padding: var(--space-1) 0; background: var(--bg-canvas);
+  }
+}
+.sym-key {
+  flex: none; min-width: 44px; min-height: 44px; padding: 0 var(--space-2);
+  font-family: var(--font-mono); font-size: var(--text-body); color: var(--text-primary);
+  background: var(--bg-subtle); border: 1px solid var(--border-control); border-radius: var(--radius-sm);
+}
+.sym-key:active { background: var(--accent-tint); }
